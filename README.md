@@ -66,6 +66,7 @@ set PORT=3002 && npm start  # http://localhost:3002
 
 | Document | Description |
 |----------|-------------|
+| 📋 **[Core Features](docs/FEATURES.md)** | Complete feature breakdown, acceptance criteria status, enhancements |
 | 📖 **[API Documentation](src/api/README.md)** | Architecture, endpoints, middleware, auth, multi-tenancy, business rules |
 | 🖥️ **[Admin Portal Documentation](src/admin-portal/README.md)** | Setup, features, auth flow, UI patterns, error handling |
 | 🗄️ **[Database Structure](docs/DATABASE.md)** | Tables, columns, FK relationships, indexes, enums, ER diagram |
