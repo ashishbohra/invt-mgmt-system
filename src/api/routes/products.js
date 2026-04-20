@@ -70,7 +70,7 @@ router.post('/', ctrl.create);
  *       200:
  *         description: List of active products
  */
-router.get('/active/:tenantId', ctrl.getActiveByTenant);
+router.get('/active', ctrl.getActiveByTenant);
 
 /**
  * @openapi

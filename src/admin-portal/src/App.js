@@ -1,23 +1,40 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import TenantList from './pages/TenantList';
-import TenantForm from './pages/TenantForm';
-import './App.css';
+import LoginPage from './pages/auth/LoginPage';
+import OtpVerifyPage from './pages/auth/OtpVerifyPage';
+import TenantListPage from './pages/tenant/TenantListPage';
+import UserListPage from './pages/user/UserListPage';
+import './styles/app.css';
+
+function AppLayout({ children }) {
+  return (
+    <>
+      <Sidebar />
+      <Header />
+      <main className="main-content">{children}</main>
+    </>
+  );
+}
+
+function Protected({ children }) {
+  return <ProtectedRoute><AppLayout>{children}</AppLayout></ProtectedRoute>;
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <Sidebar />
-      <Header />
-      <main className="main-content">
+      <AuthProvider>
         <Routes>
-          <Route path="/" element={<Navigate to="/tenants" />} />
-          <Route path="/tenants" element={<TenantList />} />
-          <Route path="/tenants/new" element={<TenantForm />} />
-          <Route path="/tenants/:id/edit" element={<TenantForm />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/verify-otp" element={<OtpVerifyPage />} />
+          <Route path="/tenants" element={<Protected><TenantListPage /></Protected>} />
+          <Route path="/users" element={<Protected><UserListPage /></Protected>} />
+          <Route path="*" element={<Navigate to="/tenants" />} />
         </Routes>
-      </main>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
