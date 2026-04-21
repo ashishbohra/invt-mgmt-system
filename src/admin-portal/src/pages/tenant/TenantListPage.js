@@ -3,8 +3,6 @@ import tenantService from '../../services/tenantService';
 import TenantModal from './TenantModal';
 import '../../styles/pages.css';
 
-const formatId = (id) => `TEN-${String(id).padStart(3, '0')}`;
-
 export default function TenantListPage() {
   const [tenants, setTenants] = useState([]);
   const [total, setTotal] = useState(0);
@@ -52,7 +50,7 @@ export default function TenantListPage() {
 
   const handleDelete = async (id) => {
     setOpenMenu(null);
-    if (!window.confirm('Delete this tenant? All related data will be removed.')) return;
+    if (!window.confirm('Deactivate this tenant? It will be marked as Inactive.')) return;
     try {
       await tenantService.delete(id);
       load();
@@ -133,7 +131,7 @@ export default function TenantListPage() {
             <tr><td colSpan="5" className="empty">No tenants found</td></tr>
           ) : tenants.map((t) => (
             <tr key={t.id}>
-              <td className="text-muted">{formatId(t.id)}</td>
+              <td className="text-muted">{t.tenant_id || '—'}</td>
               <td className="text-bold">{t.name}</td>
               <td>
                 {(t.domains || []).length > 0

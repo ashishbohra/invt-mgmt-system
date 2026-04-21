@@ -12,11 +12,11 @@
       "env": {
         "PORT": "3000",
         "DB_HOST": "localhost",
-        "DB_PORT": "5432",
+        "DB_PORT": "5444",
         "DB_NAME": "invt_mgmt_db",
         "DB_USER": "invtMgmtUser",
         "DB_PASSWORD": "invtMgmtUser@2k26",
-        "DATABASE_URL": "postgresql://invtMgmtUser:invtMgmtUser%402k26@localhost:5432/invt_mgmt_db",
+        "DATABASE_URL": "postgresql://invtMgmtUser:invtMgmtUser%402k26@localhost:5444/invt_mgmt_db",
         "JWT_SECRET": "invtMgmt$ecretKey@2k26!",
         "LOG_LEVEL": "DEBUG"
       }

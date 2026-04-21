@@ -56,6 +56,10 @@ module.exports = {
       logger.warn('Auth', `User login denied — no UserPortal access userId=${user.id}`, { tenantId });
       throw { status: 403, message: 'You do not have access to the User Portal' };
     }
+    if (!user.tenant_id) {
+      logger.warn('Auth', `User login denied — no tenant assigned userId=${user.id}`);
+      throw { status: 403, message: 'No tenant assigned to this user' };
+    }
     logger.info('Auth', `User login successful userId=${user.id}`, { tenantId });
     return verifyAndSign(user);
   },

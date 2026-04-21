@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import authService from '../../services/authService';
 import '../../styles/auth.css';
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,8 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { data: res } = await authService.login({ email, password });
-      sessionStorage.setItem('pending_auth', res.data.token);
-      navigate('/verify-otp');
+      login(res.data.token);
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
     } finally {

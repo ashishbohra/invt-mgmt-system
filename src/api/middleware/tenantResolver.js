@@ -23,9 +23,9 @@ module.exports = async (req, res, next) => {
 
     const tenant = await tenantRepo.findByName(tenantName);
     if (tenant) {
-      req.tenantId = tenant.id;
+      req.tenantId = tenant.tenant_id;
       req.tenantName = tenant.name;
-      logger.debug('TenantResolver', `Resolved tenant: ${tenant.name} (id=${tenant.id})`);
+      logger.debug('TenantResolver', `Resolved tenant: ${tenant.name} (tenant_id=${tenant.tenant_id})`);
     } else {
       logger.debug('TenantResolver', `Tenant "${tenantName}" not found — skipping`);
     }

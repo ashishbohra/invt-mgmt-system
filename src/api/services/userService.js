@@ -2,6 +2,7 @@ const repo = require('../repositories/userRepository');
 const { validateEmail } = require('../utils/emailValidator');
 const { validatePassword, hashPassword } = require('../utils/password');
 const { validateRoles, validatePortals } = require('../utils/validators');
+const { PORTALS } = require('../constants/enums');
 const logger = require('../utils/logger');
 
 module.exports = {
@@ -23,6 +24,10 @@ module.exports = {
     validatePassword(password);
     validateRoles(roles);
     validatePortals(portals);
+
+    if (portals?.includes(PORTALS.USER) && !tenant_id) {
+      throw { status: 400, message: 'Tenant ID is required for UserPortal users' };
+    }
 
     const existing = await repo.findByEmail(email, tenant_id || null);
     if (existing) {

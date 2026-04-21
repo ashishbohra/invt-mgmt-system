@@ -5,7 +5,7 @@ class UserRepository extends BaseRepository {
 
   static schema = {
     id: 'SERIAL PRIMARY KEY',
-    tenant_id: 'INTEGER REFERENCES tenants(id) ON DELETE CASCADE',
+    tenant_id: 'VARCHAR(20) REFERENCES tenants(tenant_id) ON DELETE CASCADE',
     name: 'VARCHAR(255) NOT NULL',
     email: 'VARCHAR(255) NOT NULL',
     password: 'VARCHAR(255) NOT NULL',
@@ -25,27 +25,28 @@ class UserRepository extends BaseRepository {
   async findAll({ tenantId, search, page = 1, limit = 10 }) {
     await this.ensureTable();
     const offset = (page - 1) * limit;
-    const conditions = ['is_active = true'];
+    const conditions = ['u.is_active = true'];
     const params = [];
 
     if (tenantId) {
       params.push(tenantId);
-      conditions.push(`tenant_id = $${params.length}`);
+      conditions.push(`u.tenant_id = $${params.length}`);
     }
     if (search) {
       params.push(`%${search}%`);
-      conditions.push(`(name ILIKE $${params.length} OR email ILIKE $${params.length})`);
+      conditions.push(`(u.name ILIKE $${params.length} OR u.email ILIKE $${params.length})`);
     }
 
     const where = `WHERE ${conditions.join(' AND ')}`;
     params.push(limit, offset);
 
     const { rows } = await this.pool.query(
-      `SELECT id, tenant_id, name, email, roles, portals, is_active, created_at, updated_at
-       FROM users ${where} ORDER BY created_at DESC LIMIT $${params.length - 1} OFFSET $${params.length}`, params
+      `SELECT u.id, u.tenant_id, t.name as tenant_name, u.name, u.email, u.roles, u.portals, u.is_active, u.created_at, u.updated_at
+       FROM users u LEFT JOIN tenants t ON u.tenant_id = t.tenant_id
+       ${where} ORDER BY u.created_at DESC LIMIT $${params.length - 1} OFFSET $${params.length}`, params
     );
     const countRes = await this.pool.query(
-      `SELECT COUNT(*) FROM users ${where}`, params.slice(0, -2)
+      `SELECT COUNT(*) FROM users u ${where}`, params.slice(0, -2)
     );
     return { data: rows, total: parseInt(countRes.rows[0].count) };
   }
@@ -53,8 +54,9 @@ class UserRepository extends BaseRepository {
   async findById(id) {
     await this.ensureTable();
     const { rows } = await this.pool.query(
-      `SELECT id, tenant_id, name, email, roles, portals, is_active, created_at, updated_at
-       FROM users WHERE id = $1 AND is_active = true`, [id]
+      `SELECT u.id, u.tenant_id, t.name as tenant_name, u.name, u.email, u.roles, u.portals, u.is_active, u.created_at, u.updated_at
+       FROM users u LEFT JOIN tenants t ON u.tenant_id = t.tenant_id
+       WHERE u.id = $1 AND u.is_active = true`, [id]
     );
     return rows[0];
   }

@@ -29,7 +29,6 @@ router.get('/enums', ctrl.enums);
  *             type: object
  *             required: [name, email, password, roles, portals]
  *             properties:
- *               tenant_id: { type: integer, nullable: true, example: 1, description: Optional — null for admin users }
  *               name: { type: string, example: John Doe }
  *               email: { type: string, example: john@example.com }
  *               password: { type: string, example: Passw0rd@1 }
@@ -49,7 +48,7 @@ router.get('/enums', ctrl.enums);
  *       409:
  *         description: Email already exists for this tenant
  */
-router.post('/', ctrl.create);
+router.post('/', authenticate.optional, ctrl.create);
 
 // --- Protected routes below ---
 

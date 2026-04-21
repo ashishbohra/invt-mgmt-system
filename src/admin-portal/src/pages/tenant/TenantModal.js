@@ -5,7 +5,7 @@ import '../../styles/modal.css';
 
 export default function TenantModal({ tenantId, onClose, onSaved }) {
   const isEdit = Boolean(tenantId);
-  const [form, setForm] = useState({ name: '', domains: [], status: 'Active' });
+  const [form, setForm] = useState({ name: '', domains: [], status: 'Active', tenant_id: '' });
   const [domainInput, setDomainInput] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ export default function TenantModal({ tenantId, onClose, onSaved }) {
   useEffect(() => {
     if (isEdit) {
       tenantService.getById(tenantId).then(({ data: res }) => {
-        setForm({ name: res.data.name, domains: res.data.domains || [], status: res.data.status });
+        setForm({ name: res.data.name, domains: res.data.domains || [], status: res.data.status, tenant_id: res.data.tenant_id || '' });
       }).catch(() => setError('Failed to load tenant'));
     }
   }, [tenantId, isEdit]);
@@ -49,7 +49,7 @@ export default function TenantModal({ tenantId, onClose, onSaved }) {
     }
 
     try {
-      const payload = { ...form, domains: finalDomains };
+      const payload = { name: form.name, domains: finalDomains };
       if (isEdit) await tenantService.update(tenantId, payload);
       else await tenantService.create({ name: payload.name, domains: payload.domains });
       onSaved();
@@ -69,6 +69,11 @@ export default function TenantModal({ tenantId, onClose, onSaved }) {
         </div>
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
+            {isEdit && form.tenant_id && (
+              <label>Tenant ID
+                <input value={form.tenant_id} disabled />
+              </label>
+            )}
             <label>Tenant Name *
               <input required value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Enter tenant name" />
             </label>
@@ -88,14 +93,6 @@ export default function TenantModal({ tenantId, onClose, onSaved }) {
                 </div>
               )}
             </label>
-            {isEdit && (
-              <label>Status
-                <select value={form.status} onChange={(e) => set('status', e.target.value)}>
-                  <option>Active</option>
-                  <option>Inactive</option>
-                </select>
-              </label>
-            )}
             {error && <div className="error">{error}</div>}
           </div>
           <div className="modal-footer">

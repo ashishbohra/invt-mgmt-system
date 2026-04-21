@@ -1,7 +1,7 @@
 const { verifyToken } = require('../utils/jwt');
 const logger = require('../utils/logger');
 
-module.exports = (req, res, next) => {
+const authenticate = (req, res, next) => {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
     logger.warn('Auth', 'Missing or invalid Authorization header', { url: req.originalUrl });
@@ -20,3 +20,15 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ success: false, error: 'Invalid or expired token' });
   }
 };
+
+authenticate.optional = (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) return next();
+  try {
+    req.user = verifyToken(header.split(' ')[1]);
+    req.tenantId = req.user.tenantId || req.tenantId;
+  } catch (_) {}
+  next();
+};
+
+module.exports = authenticate;

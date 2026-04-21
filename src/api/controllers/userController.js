@@ -1,6 +1,7 @@
 const handle = require('../middleware/responseHandler');
 const service = require('../services/userService');
-const { ALL_ROLES, ALL_PORTALS } = require('../constants/enums');
+const tenantRepo = require('../repositories/tenantRepository');
+const { ALL_ROLES, ALL_PORTALS, PORTALS } = require('../constants/enums');
 
 module.exports = {
   list: handle(async (req) => {
@@ -10,10 +11,33 @@ module.exports = {
     return { data: await service.getById(req.params.id) };
   }),
   create: handle(async (req) => {
-    return { data: await service.create(req.body) };
+    const body = { ...req.body };
+    const tenantName = body.tenant_name;
+    delete body.tenant_id;
+    delete body.tenant_name;
+    if (body.portals?.includes(PORTALS.USER)) {
+      if (!tenantName) throw { status: 400, message: 'Tenant is required for UserPortal users' };
+      const tenant = await tenantRepo.findByName(tenantName);
+      if (!tenant) throw { status: 404, message: 'Tenant not found' };
+      body.tenant_id = tenant.tenant_id;
+    } else {
+      body.tenant_id = null;
+    }
+    return { data: await service.create(body) };
   }),
   update: handle(async (req) => {
-    return { data: await service.update(req.params.id, req.body) };
+    const body = { ...req.body };
+    if ('tenant_name' in body) {
+      if (body.tenant_name) {
+        const tenant = await tenantRepo.findByName(body.tenant_name);
+        if (!tenant) throw { status: 404, message: 'Tenant not found' };
+        body.tenant_id = tenant.tenant_id;
+      } else {
+        body.tenant_id = null;
+      }
+      delete body.tenant_name;
+    }
+    return { data: await service.update(req.params.id, body) };
   }),
   changePassword: handle(async (req) => {
     return service.changePassword(req.params.id, req.body);

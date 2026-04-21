@@ -82,7 +82,7 @@ export default function UserListPage() {
             <tr key={u.id}>
               <td className="text-bold">{u.name}</td>
               <td>{u.email}</td>
-              <td>{u.tenant_id ? <span className="text-muted">#{u.tenant_id}</span> : <span className="badge Confirmed">Admin</span>}</td>
+              <td>{u.tenant_name ? <span className="text-muted">{u.tenant_name}</span> : <span className="badge Confirmed">Admin</span>}</td>
               <td>{(u.roles || []).map((r) => <span key={r} className="badge Active" style={{ marginRight: 4 }}>{r}</span>)}</td>
               <td>{(u.portals || []).map((p) => <span key={p} className="badge Confirmed" style={{ marginRight: 4 }}>{p.replace('Portal', '')}</span>)}</td>
               <td style={{ textAlign: 'right', position: 'relative' }} ref={openMenu === u.id ? menuRef : null}>

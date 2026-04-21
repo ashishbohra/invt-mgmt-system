@@ -5,6 +5,7 @@ class TenantRepository extends BaseRepository {
 
   static schema = {
     id: 'SERIAL PRIMARY KEY',
+    tenant_id: 'VARCHAR(20) UNIQUE',
     name: 'VARCHAR(255) NOT NULL',
     domains: "JSONB DEFAULT '[]'::jsonb",
     status: "VARCHAR(20) DEFAULT 'Active'",
@@ -13,8 +14,14 @@ class TenantRepository extends BaseRepository {
   };
 
   static indexes = [
-    'CREATE UNIQUE INDEX IF NOT EXISTS idx_tenants_name ON tenants(name)',
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_tenants_name ON tenants(LOWER(name))',
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_tenants_tenant_id ON tenants(tenant_id)',
   ];
+
+  static generateTenantId(name, id) {
+    const prefix = name.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase().padEnd(3, 'X');
+    return `TEN-${prefix}-${id}`;
+  }
 
   async findAll({ search, status, page = 1, limit = 10, sortBy = 'created_at', sortOrder = 'DESC' }) {
     await this.ensureTable();
@@ -24,7 +31,7 @@ class TenantRepository extends BaseRepository {
 
     if (search) {
       params.push(`%${search}%`);
-      conditions.push(`name ILIKE $${params.length}`);
+      conditions.push(`(name ILIKE $${params.length} OR tenant_id ILIKE $${params.length})`);
     }
     if (status) {
       params.push(status);
@@ -61,7 +68,7 @@ class TenantRepository extends BaseRepository {
 
   async findByName(name) {
     await this.ensureTable();
-    const { rows } = await this.pool.query('SELECT * FROM tenants WHERE name = $1', [name]);
+    const { rows } = await this.pool.query('SELECT * FROM tenants WHERE LOWER(name) = LOWER($1)', [name]);
     return rows[0];
   }
 
@@ -69,9 +76,15 @@ class TenantRepository extends BaseRepository {
     await this.ensureTable();
     const { rows } = await this.pool.query(
       'INSERT INTO tenants (name, domains) VALUES ($1, $2) RETURNING *',
-      [name, JSON.stringify(domains || [])]
+      [name.toLowerCase(), JSON.stringify(domains || [])]
     );
-    return rows[0];
+    const tenant = rows[0];
+    tenant.tenant_id = TenantRepository.generateTenantId(name, tenant.id);
+    const updated = await this.pool.query(
+      'UPDATE tenants SET tenant_id = $1 WHERE id = $2 RETURNING *',
+      [tenant.tenant_id, tenant.id]
+    );
+    return updated.rows[0];
   }
 
   async update(id, { name, domains, status }) {
@@ -79,7 +92,7 @@ class TenantRepository extends BaseRepository {
     const { rows } = await this.pool.query(
       `UPDATE tenants SET name = COALESCE($1, name), domains = COALESCE($2, domains),
        status = COALESCE($3, status), updated_at = NOW() WHERE id = $4 RETURNING *`,
-      [name, domains ? JSON.stringify(domains) : null, status, id]
+      [name ? name.toLowerCase() : null, domains ? JSON.stringify(domains) : null, status, id]
     );
     return rows[0];
   }
