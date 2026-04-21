@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { inventoryApi } from '../services/api';
+import inventoryService from '../../services/inventoryService';
 import InventoryModal from './InventoryModal';
 import InventoryViewModal from './InventoryViewModal';
-import ProductViewModal from './ProductViewModal';
-import './Pages.css';
+import ProductViewModal from '../product/ProductViewModal';
+import '../../styles/pages.css';
 
 export default function InventoryList() {
   const [items, setItems] = useState([]);
@@ -23,7 +23,7 @@ export default function InventoryList() {
   const totalPages = Math.ceil(total / limit) || 1;
 
   const load = useCallback(async () => {
-    const { data } = await inventoryApi.list({ status: statusFilter, filter: stockFilter, page, limit });
+    const { data } = await inventoryService.list({ status: statusFilter, filter: stockFilter, page, limit });
     setItems(data.data);
     setTotal(data.total);
     setTotalActive(data.totalActive);

@@ -74,6 +74,12 @@ class TenantRepository extends BaseRepository {
     return rows[0];
   }
 
+  async findByTenantId(tenantId) {
+    await this.ensureTable();
+    const { rows } = await this.pool.query('SELECT * FROM tenants WHERE tenant_id = $1', [tenantId]);
+    return rows[0];
+  }
+
   async findByDomain(origin) {
     await this.ensureTable();
     const { rows } = await this.pool.query(

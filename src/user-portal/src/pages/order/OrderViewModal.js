@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { orderApi } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import '../styles/modal.css';
+import orderService from '../../services/orderService';
+import { useAuth } from '../../context/AuthContext';
+import '../../styles/modal.css';
 
 export default function OrderViewModal({ orderId, onClose, onViewProduct, onUpdated, onReorder }) {
   const { user } = useAuth();
@@ -14,7 +14,7 @@ export default function OrderViewModal({ orderId, onClose, onViewProduct, onUpda
   const isManager = user?.roles?.includes('Manager');
 
   const load = () => {
-    orderApi.getById(orderId).then(({ data }) => setOrder(data.data || data)).catch(() => setError('Failed to load order'));
+    orderService.getById(orderId).then(({ data }) => setOrder(data.data || data)).catch(() => setError('Failed to load order'));
   };
 
   useEffect(() => { load(); }, [orderId]);
@@ -23,7 +23,7 @@ export default function OrderViewModal({ orderId, onClose, onViewProduct, onUpda
     setError('');
     setLoading('confirm');
     try {
-      await orderApi.confirm(orderId);
+      await orderService.confirm(orderId);
       load();
       if (onUpdated) onUpdated();
     } catch (err) {
@@ -38,7 +38,7 @@ export default function OrderViewModal({ orderId, onClose, onViewProduct, onUpda
     setError('');
     setLoading('cancel');
     try {
-      await orderApi.cancel(orderId, cancelReason.trim());
+      await orderService.cancel(orderId, cancelReason.trim());
       load();
       setShowCancelForm(false);
       setCancelReason('');

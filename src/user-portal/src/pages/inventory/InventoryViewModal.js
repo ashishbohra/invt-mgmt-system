@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { inventoryApi } from '../services/api';
-import ViewModal from '../components/ViewModal';
+import inventoryService from '../../services/inventoryService';
+import ViewModal from '../../components/ViewModal';
 
 export default function InventoryViewModal({ inventoryId, onClose, onViewProduct }) {
   const [inv, setInv] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    inventoryApi.getById(inventoryId).then(({ data }) => setInv(data.data || data)).catch(() => setError('Failed to load inventory'));
+    inventoryService.getById(inventoryId).then(({ data }) => setInv(data.data || data)).catch(() => setError('Failed to load inventory'));
   }, [inventoryId]);
 
   const isLow = inv && inv.current_inventory < inv.reorder_threshold;

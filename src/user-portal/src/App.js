@@ -4,10 +4,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import LoginPage from './pages/auth/LoginPage';
-import ProductList from './pages/ProductList';
-import InventoryList from './pages/InventoryList';
-import OrderList from './pages/OrderList';
-import './App.css';
+import ProductList from './pages/product/ProductList';
+import InventoryList from './pages/inventory/InventoryList';
+import OrderList from './pages/order/OrderList';
+import './styles/app.css';
 
 function AppLayout({ children }) {
   return (

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import './Sidebar.css';
+import '../styles/sidebar.css';
 
 export default function Sidebar() {
   const link = ({ isActive }) => isActive ? 'nav-link active' : 'nav-link';

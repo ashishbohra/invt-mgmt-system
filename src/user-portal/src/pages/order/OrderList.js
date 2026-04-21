@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { orderApi } from '../services/api';
+import orderService from '../../services/orderService';
 import OrderModal from './OrderModal';
 import OrderViewModal from './OrderViewModal';
-import ProductViewModal from './ProductViewModal';
-import './Pages.css';
+import ProductViewModal from '../product/ProductViewModal';
+import '../../styles/pages.css';
 
 export default function OrderList() {
   const [orders, setOrders] = useState([]);
@@ -26,7 +26,7 @@ export default function OrderList() {
   const totalPages = Math.ceil(total / limit) || 1;
 
   const load = useCallback(async () => {
-    const { data } = await orderApi.list({ status: statusFilter, activeFilter, page, limit });
+    const { data } = await orderService.list({ status: statusFilter, activeFilter, page, limit });
     setOrders(data.data);
     setTotal(data.total);
     setTotalActive(data.totalActive);
@@ -51,7 +51,7 @@ export default function OrderList() {
     setOpenMenu(null);
     if (!window.confirm('Delete this order?')) return;
     try {
-      await orderApi.delete(id);
+      await orderService.delete(id);
       load();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete');

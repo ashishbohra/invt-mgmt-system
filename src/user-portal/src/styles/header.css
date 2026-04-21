@@ -1,0 +1,8 @@
+.top-header { height: 60px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; margin-left: 240px; position: fixed; top: 0; right: 0; left: 0; z-index: 99; }
+.top-header .app-title { font-weight: 600; font-size: 1.05rem; color: #1a1a2e; }
+.tenant-badge { background: #eef2ff; color: #4f6ef7; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.user-name { font-weight: 500; font-size: 0.9rem; color: #555; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #4f6ef7; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; }
+.logout-btn { background: none; border: 1px solid #e0e0e0; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: #777; transition: all 0.2s; }
+.logout-btn:hover { background: #fef2f2; color: #dc3545; border-color: #dc3545; }

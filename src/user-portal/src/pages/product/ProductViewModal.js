@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { productApi } from '../services/api';
-import ViewModal from '../components/ViewModal';
+import productService from '../../services/productService';
+import ViewModal from '../../components/ViewModal';
 
 export default function ProductViewModal({ productId, onClose }) {
   const [product, setProduct] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    productApi.getById(productId).then(({ data }) => setProduct(data.data || data)).catch(() => setError('Failed to load product'));
+    productService.getById(productId).then(({ data }) => setProduct(data.data || data)).catch(() => setError('Failed to load product'));
   }, [productId]);
 
   const fields = product ? [

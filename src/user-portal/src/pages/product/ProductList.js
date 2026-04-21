@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { productApi } from '../services/api';
+import productService from '../../services/productService';
 import ProductModal from './ProductModal';
 import ProductViewModal from './ProductViewModal';
-import './Pages.css';
+import '../../styles/pages.css';
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -22,7 +22,7 @@ export default function ProductList() {
   const totalPages = Math.ceil(total / limit) || 1;
 
   const load = useCallback(async () => {
-    const { data } = await productApi.list({ search, status: statusFilter, page, limit, sortBy, sortOrder });
+    const { data } = await productService.list({ search, status: statusFilter, page, limit, sortBy, sortOrder });
     setProducts(data.data);
     setTotal(data.total);
     setTotalActive(data.totalActive);
@@ -42,7 +42,7 @@ export default function ProductList() {
   const handleDelete = async (id) => {
     setOpenMenu(null);
     if (!window.confirm('Delete this product?')) return;
-    await productApi.delete(id);
+    await productService.delete(id);
     load();
   };
 

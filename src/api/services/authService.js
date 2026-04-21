@@ -1,4 +1,5 @@
 const userRepo = require('../repositories/userRepository');
+const tenantRepo = require('../repositories/tenantRepository');
 const { validateEmail } = require('../utils/emailValidator');
 const { comparePassword } = require('../utils/password');
 const { signToken, decodeToken } = require('../utils/jwt');
@@ -7,9 +8,15 @@ const logger = require('../utils/logger');
 const { PORTALS } = require('../constants/enums');
 
 async function verifyAndSign(user) {
+  let tenantName = null;
+  if (user.tenant_id) {
+    const tenant = await tenantRepo.findByTenantId(user.tenant_id);
+    if (tenant) tenantName = tenant.name;
+  }
   const token = signToken({
     userId: user.id,
     tenantId: user.tenant_id,
+    tenantName,
     name: user.name,
     email: user.email,
     roles: user.roles,
@@ -19,7 +26,7 @@ async function verifyAndSign(user) {
   return {
     token,
     expiresAt: new Date(decoded.exp * 1000).toISOString(),
-    user: { id: user.id, tenantId: user.tenant_id, name: user.name, email: user.email, roles: user.roles, portals: user.portals },
+    user: { id: user.id, tenantId: user.tenant_id, tenantName, name: user.name, email: user.email, roles: user.roles, portals: user.portals },
   };
 }
 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { productApi, orderApi, inventoryApi } from '../services/api';
-import FormModal from '../components/FormModal';
+import productService from '../../services/productService';
+import orderService from '../../services/orderService';
+import inventoryService from '../../services/inventoryService';
+import FormModal from '../../components/FormModal';
 
 export default function OrderModal({ prefill, onClose, onSaved }) {
   const [products, setProducts] = useState([]);
@@ -11,12 +13,12 @@ export default function OrderModal({ prefill, onClose, onSaved }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    productApi.list({ status: 'Active', limit: 100 }).then(({ data }) => setProducts(data.data || [])).catch(() => {});
+    productService.list({ status: 'Active', limit: 100 }).then(({ data }) => setProducts(data.data || [])).catch(() => {});
   }, []);
 
   useEffect(() => {
     if (!productId) { setAvailableStock(null); return; }
-    inventoryApi.getByProductId(productId).then(({ data }) => {
+    inventoryService.getByProductId(productId).then(({ data }) => {
       const inv = data.data || data;
       setAvailableStock(inv.current_inventory ?? 0);
     }).catch(() => setAvailableStock(0));
@@ -34,7 +36,7 @@ export default function OrderModal({ prefill, onClose, onSaved }) {
     }
     setLoading(true);
     try {
-      await orderApi.create({ product_id: Number(productId), quantity: qty });
+      await orderService.create({ product_id: Number(productId), quantity: qty });
       onSaved();
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');

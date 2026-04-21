@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { productApi } from '../services/api';
-import FormModal from '../components/FormModal';
+import productService from '../../services/productService';
+import FormModal from '../../components/FormModal';
 
 const CATEGORIES = [
   'Electronics', 'Clothing', 'Food & Beverage', 'Furniture',
@@ -16,7 +16,7 @@ export default function ProductModal({ productId, onClose, onSaved }) {
 
   useEffect(() => {
     if (isEdit) {
-      productApi.getById(productId).then(({ data }) => {
+      productService.getById(productId).then(({ data }) => {
         const d = data.data || data;
         setForm({ name: d.name, sku: d.sku, category: d.category, reorder_threshold: d.reorder_threshold, cost_per_unit: d.cost_per_unit });
       }).catch(() => setError('Failed to load product'));
@@ -30,8 +30,8 @@ export default function ProductModal({ productId, onClose, onSaved }) {
     setError('');
     setLoading(true);
     try {
-      if (isEdit) await productApi.update(productId, form);
-      else await productApi.create(form);
+      if (isEdit) await productService.update(productId, form);
+      else await productService.create(form);
       onSaved();
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');
