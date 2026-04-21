@@ -20,6 +20,7 @@ src/
 
 | Document | Description |
 |----------|-------------|
+| 🛠️ **[Tech Stack & Tools](docs/TECH-STACK.md)** | All technologies, libraries, and tools explained |
 | 🚀 **[Getting Started](docs/GETTING-STARTED.md)** | Step-by-step setup guide |
 | 🏗️ **[Architecture & HLD](docs/ARCHITECTURE.md)** | System design, data flow, tech stack |
 | 🏢 **[Multi-Tenancy](docs/MULTI-TENANCY.md)** | Tenant resolution, data isolation, domain mapping |

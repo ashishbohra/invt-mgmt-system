@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  # ── Database ──────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: invt_mgmt_db
+    restart: unless-stopped
+    ports:
+      - "5444:5432"
+    environment:
+      POSTGRES_DB: invt_mgmt_db
+      POSTGRES_USER: invtMgmtUser
+      POSTGRES_PASSWORD: invtMgmtUser@2k26
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U invtMgmtUser -d invt_mgmt_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── API ───────────────────────────────────────────
+  api:
+    build: ./src/api
+    container_name: invt_mgmt_api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: invt_mgmt_db
+      DB_USER: invtMgmtUser
+      DB_PASSWORD: invtMgmtUser@2k26
+      JWT_SECRET: invtMgmt$ecretKey@2k26!
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Admin Portal ──────────────────────────────────
+  admin-portal:
+    build: ./src/admin-portal
+    container_name: invt_admin_portal
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      REACT_APP_API_URL: http://localhost:3000/api
+    depends_on:
+      - api
+
+  # ── User Portal (Tenant 1) ───────────────────────
+  user-portal:
+    build: ./src/user-portal
+    container_name: invt_user_portal
+    restart: unless-stopped
+    ports:
+      - "4002:4002"
+    environment:
+      PORT: 4002
+      REACT_APP_API_URL: http://localhost:3000/api
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

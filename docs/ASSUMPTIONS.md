@@ -11,15 +11,14 @@ Where the implementation differs from the original scope document, and why.
 | # | Scope Requirement | Our Implementation | Rationale |
 |---|---|---|---|
 | 1 | **Tenant Dropdown** on every list page to switch tenants | **Domain-based resolution** — no dropdown | More secure. Prevents client-side tenant switching. Closer to real SaaS (each tenant gets their own subdomain/port). Tenant resolved from browser origin matched against DB. |
-| 2 | **OTP verification** after login | **Removed** — direct JWT on login | Simplified auth flow. OTP was a static code (`123456`), not real 2FA. Direct login is faster and the JWT provides session security. |
-| 3 | Insufficient inventory → order saved as **Pending** | Order creation **blocked** with error message | Prevents orders that can never be fulfilled. Shows available stock so user can adjust quantity. Better UX than creating unfulfillable orders. |
-| 4 | Two roles: Admin, User | Three roles: **Admin, Manager, User** | Added Manager role for order approval workflow. Separation of duties — Users create orders, Managers approve/cancel. Required for real-world accountability. |
-| 5 | Cancel order — simple status change | Cancel requires **reason** (mandatory text) | Audit trail for accountability. Stores cancelled_by, cancelled_at, cancel_reason. |
-| 6 | Approve order — simple status change | Approve stores **approved_by, approved_at** | Full audit trail. Know who approved and when. |
-| 7 | Product status: Active/Inactive toggle | **Soft delete** with `is_active` flag | Delete = set `is_active = false`. No status toggle in edit. Cleaner — delete is the only way to deactivate. |
-| 8 | Category as free text input | **Enum dropdown** (10 predefined categories) | Consistent data. No typos. Better for filtering and reporting. |
-| 9 | Separate detail pages for View | **Modal-based** View, Edit, Create | No page navigation needed. Faster UX. Consistent pattern across all modules. |
-| 10 | Inventory can be deleted independently | **Inventory lifecycle tied to product** | Deleting inventory without deleting the product makes no sense. Product delete cascades to inventory deactivation. |
+| 2 | Insufficient inventory → order saved as **Pending** | Order creation **blocked** with error message | Prevents orders that can never be fulfilled. Shows available stock so user can adjust quantity. Better UX than creating unfulfillable orders. |
+| 3 | Two roles: Admin, User | Three roles: **Admin, Manager, User** | Added Manager role for order approval workflow. Separation of duties — Users create orders, Managers approve/cancel. Required for real-world accountability. |
+| 4 | Cancel order — simple status change | Cancel requires **reason** (mandatory text) | Audit trail for accountability. Stores cancelled_by, cancelled_at, cancel_reason. |
+| 5 | Approve order — simple status change | Approve stores **approved_by, approved_at** | Full audit trail. Know who approved and when. |
+| 6 | Product status: Active/Inactive toggle | **Soft delete** with `is_active` flag | Delete = set `is_active = false`. No status toggle in edit. Cleaner — delete is the only way to deactivate. |
+| 7 | Category as free text input | **Enum dropdown** (10 predefined categories) | Consistent data. No typos. Better for filtering and reporting. |
+| 8 | Separate detail pages for View | **Modal-based** View, Edit, Create | No page navigation needed. Faster UX. Consistent pattern across all modules. |
+| 9 | Inventory can be deleted independently | **Inventory lifecycle tied to product** | Deleting inventory without deleting the product makes no sense. Product delete cascades to inventory deactivation. |
 
 ---
 
