@@ -12,6 +12,8 @@ class UserRepository extends BaseRepository {
     roles: "JSONB NOT NULL DEFAULT '[]'::jsonb",
     portals: "JSONB NOT NULL DEFAULT '[]'::jsonb",
     is_active: 'BOOLEAN DEFAULT true',
+    created_by: 'VARCHAR(255)',
+    updated_by: 'VARCHAR(255)',
     created_at: 'TIMESTAMP DEFAULT NOW()',
     updated_at: 'TIMESTAMP DEFAULT NOW()',
   };
@@ -75,28 +77,28 @@ class UserRepository extends BaseRepository {
     return rows[0];
   }
 
-  async create({ tenant_id, name, email, password, roles, portals }) {
+  async create({ tenant_id, name, email, password, roles, portals, userEmail }) {
     await this.ensureTable();
     const { rows } = await this.pool.query(
-      `INSERT INTO users (tenant_id, name, email, password, roles, portals)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, tenant_id, name, email, roles, portals, is_active, created_at, updated_at`,
-      [tenant_id, name, email, password, JSON.stringify(roles), JSON.stringify(portals)]
+      `INSERT INTO users (tenant_id, name, email, password, roles, portals, created_by, updated_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
+       RETURNING id, tenant_id, name, email, roles, portals, is_active, created_by, updated_by, created_at, updated_at`,
+      [tenant_id, name, email, password, JSON.stringify(roles), JSON.stringify(portals), userEmail]
     );
     return rows[0];
   }
 
-  async update(id, { tenant_id, name, email, roles, portals }) {
+  async update(id, { tenant_id, name, email, roles, portals, userEmail }) {
     await this.ensureTable();
     const { rows } = await this.pool.query(
       `UPDATE users SET
          tenant_id = COALESCE($1, tenant_id),
          name = COALESCE($2, name), email = COALESCE($3, email),
          roles = COALESCE($4, roles), portals = COALESCE($5, portals),
-         updated_at = NOW()
+         updated_by = COALESCE($7, updated_by), updated_at = NOW()
        WHERE id = $6 AND is_active = true
-       RETURNING id, tenant_id, name, email, roles, portals, is_active, created_at, updated_at`,
-      [tenant_id, name, email, roles ? JSON.stringify(roles) : null, portals ? JSON.stringify(portals) : null, id]
+       RETURNING id, tenant_id, name, email, roles, portals, is_active, created_by, updated_by, created_at, updated_at`,
+      [tenant_id, name, email, roles ? JSON.stringify(roles) : null, portals ? JSON.stringify(portals) : null, id, userEmail]
     );
     return rows[0];
   }

@@ -53,6 +53,7 @@ const ctrl = require('../controllers/productController');
  *         description: Created product with inventory record
  */
 router.get('/', ctrl.list);
+router.get('/categories', ctrl.categories);
 router.post('/', ctrl.create);
 
 /**

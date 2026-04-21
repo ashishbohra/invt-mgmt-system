@@ -5,10 +5,12 @@ class OrderRepository extends BaseRepository {
 
   static schema = {
     id: 'SERIAL PRIMARY KEY',
-    tenant_id: 'INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE',
+    tenant_id: 'VARCHAR(20) NOT NULL REFERENCES tenants(tenant_id) ON DELETE CASCADE',
     product_id: 'INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE',
     quantity: 'INTEGER NOT NULL',
     status: "VARCHAR(20) DEFAULT 'Created'",
+    created_by: 'VARCHAR(255)',
+    updated_by: 'VARCHAR(255)',
     created_at: 'TIMESTAMP DEFAULT NOW()',
     updated_at: 'TIMESTAMP DEFAULT NOW()',
   };
@@ -42,8 +44,8 @@ class OrderRepository extends BaseRepository {
   async findById(id) {
     await this.ensureTable();
     const { rows } = await this.pool.query(
-      `SELECT o.*, p.name AS product_name, p.sku, p.cost_per_unit,
-       i.current_inventory FROM orders o
+      `SELECT o.*, p.name AS product_name, p.sku, p.cost_per_unit, i.current_inventory
+       FROM orders o
        JOIN products p ON o.product_id = p.id
        LEFT JOIN inventory i ON i.product_id = p.id
        WHERE o.id = $1`, [id]
@@ -51,20 +53,20 @@ class OrderRepository extends BaseRepository {
     return rows[0];
   }
 
-  async create({ tenant_id, product_id, quantity, status }) {
+  async create({ tenant_id, product_id, quantity, status, userEmail }) {
     await this.ensureTable();
     const { rows } = await this.pool.query(
-      'INSERT INTO orders (tenant_id, product_id, quantity, status) VALUES ($1, $2, $3, $4) RETURNING *',
-      [tenant_id, product_id, quantity, status]
+      'INSERT INTO orders (tenant_id, product_id, quantity, status, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $5) RETURNING *',
+      [tenant_id, product_id, quantity, status, userEmail]
     );
     return rows[0];
   }
 
-  async update(id, { status }) {
+  async update(id, { status, userEmail }) {
     await this.ensureTable();
     const { rows } = await this.pool.query(
-      'UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
-      [status, id]
+      'UPDATE orders SET status = $1, updated_by = COALESCE($3, updated_by), updated_at = NOW() WHERE id = $2 RETURNING *',
+      [status, id, userEmail]
     );
     return rows[0];
   }

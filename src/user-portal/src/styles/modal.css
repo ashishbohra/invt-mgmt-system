@@ -1,0 +1,128 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eef0f3;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #999;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.modal-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+.modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #444;
+}
+.modal-body input, .modal-body select {
+  padding: 10px 14px;
+  border: 1px solid #dde2e8;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.modal-body input:focus, .modal-body select:focus {
+  border-color: #4f6ef7;
+}
+.modal-body input[readOnly] {
+  background: #f5f5f5;
+  color: #888;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #eef0f3;
+  background: #fafbfc;
+}
+.modal-cancel {
+  padding: 9px 20px;
+  border: 1px solid #dde2e8;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+}
+.modal-cancel:hover {
+  background: #f5f5f5;
+}
+
+/* View modal rows */
+.view-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+.view-row:last-of-type {
+  border-bottom: none;
+}
+.view-label {
+  font-size: 0.85rem;
+  color: #888;
+  font-weight: 500;
+}
+.view-value {
+  font-size: 0.9rem;
+  color: #1a1a2e;
+  font-weight: 500;
+}
+.link-btn {
+  background: none;
+  border: none;
+  color: #4f6ef7;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+.link-btn:hover {
+  text-decoration: underline;
+}

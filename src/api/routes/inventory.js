@@ -73,6 +73,5 @@ router.get('/', ctrl.list);
  */
 router.get('/:id', ctrl.getById);
 router.patch('/:id', ctrl.updateStock);
-router.delete('/:id', ctrl.delete);
 
 module.exports = router;

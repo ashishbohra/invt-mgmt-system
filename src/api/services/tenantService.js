@@ -14,14 +14,14 @@ module.exports = {
     return tenant;
   },
 
-  async create({ name, domains }) {
+  async create({ name, domains, userEmail }) {
     const existing = await repo.findByName(name);
     if (existing) {
       logger.warn('TenantService', `Duplicate tenant name: ${name}`);
       throw { status: 409, message: 'Tenant name already exists' };
     }
-    const tenant = await repo.create({ name, domains });
-    logger.info('TenantService', `Tenant created id=${tenant.id}`, { name, domains });
+    const tenant = await repo.create({ name, domains, userEmail });
+    logger.info('TenantService', `Tenant created id=${tenant.id}`, { name, domains, createdBy: userEmail });
     return tenant;
   },
 

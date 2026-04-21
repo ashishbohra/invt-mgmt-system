@@ -23,7 +23,7 @@ module.exports = {
     } else {
       body.tenant_id = null;
     }
-    return { data: await service.create(body) };
+    return { data: await service.create({ ...body, userEmail: req.user?.email }) };
   }),
   update: handle(async (req) => {
     const body = { ...req.body };
@@ -37,7 +37,7 @@ module.exports = {
       }
       delete body.tenant_name;
     }
-    return { data: await service.update(req.params.id, body) };
+    return { data: await service.update(req.params.id, { ...body, userEmail: req.user?.email }) };
   }),
   changePassword: handle(async (req) => {
     return service.changePassword(req.params.id, req.body);

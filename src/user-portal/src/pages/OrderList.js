@@ -1,29 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTenant } from '../context/TenantContext';
 import { orderApi } from '../services/api';
+import OrderModal from './OrderModal';
 import './Pages.css';
 
 export default function OrderList() {
-  const { selectedTenant } = useTenant();
   const [orders, setOrders] = useState([]);
   const [total, setTotal] = useState(0);
   const [totalPending, setTotalPending] = useState(0);
   const [totalCreated, setTotalCreated] = useState(0);
   const [page, setPage] = useState(1);
+  const [modal, setModal] = useState(false);
   const navigate = useNavigate();
   const limit = 10;
 
   const load = useCallback(async () => {
-    if (!selectedTenant) return;
-    const { data } = await orderApi.list({ tenantId: selectedTenant, page, limit });
+    const { data } = await orderApi.list({ page, limit });
     setOrders(data.data);
     setTotal(data.total);
     setTotalPending(data.totalPending);
     setTotalCreated(data.totalCreated);
-  }, [selectedTenant, page]);
+  }, [page]);
 
-  useEffect(() => { setPage(1); }, [selectedTenant]);
   useEffect(() => { load(); }, [load]);
 
   const handleDelete = async (id) => {
@@ -36,7 +34,7 @@ export default function OrderList() {
     <div className="page">
       <div className="page-header">
         <h2>Orders</h2>
-        <button className="btn-primary" onClick={() => navigate('/orders/new')}>+ Create Order</button>
+        <button className="btn-primary" onClick={() => setModal(true)}>+ Create Order</button>
       </div>
       <div className="summary-tiles">
         <div className="tile"><div className="count">{total}</div><div className="label">Total Orders</div></div>
@@ -69,6 +67,13 @@ export default function OrderList() {
         <span>Page {page} of {Math.ceil(total / limit) || 1}</span>
         <button disabled={page >= Math.ceil(total / limit)} onClick={() => setPage(page + 1)}>Next</button>
       </div>
+
+      {modal && (
+        <OrderModal
+          onClose={() => setModal(false)}
+          onSaved={() => { setModal(false); load(); }}
+        />
+      )}
     </div>
   );
 }

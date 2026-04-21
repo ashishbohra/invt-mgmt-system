@@ -13,10 +13,10 @@ module.exports = {
     return { data: await service.getById(req.params.id) };
   }),
   create: handle(async (req) => {
-    return { data: await service.create(req.body) };
+    return { data: await service.create({ ...req.body, userEmail: req.user?.email }) };
   }),
   update: handle(async (req) => {
-    return { data: await service.update(req.params.id, req.body) };
+    return { data: await service.update(req.params.id, { ...req.body, userEmail: req.user?.email }) };
   }),
   delete: handle(async (req) => {
     await service.delete(req.params.id);

@@ -9,6 +9,8 @@ class TenantRepository extends BaseRepository {
     name: 'VARCHAR(255) NOT NULL',
     domains: "JSONB DEFAULT '[]'::jsonb",
     status: "VARCHAR(20) DEFAULT 'Active'",
+    created_by: 'VARCHAR(255)',
+    updated_by: 'VARCHAR(255)',
     created_at: 'TIMESTAMP DEFAULT NOW()',
     updated_at: 'TIMESTAMP DEFAULT NOW()',
   };
@@ -72,11 +74,32 @@ class TenantRepository extends BaseRepository {
     return rows[0];
   }
 
-  async create({ name, domains }) {
+  async findByDomain(origin) {
     await this.ensureTable();
     const { rows } = await this.pool.query(
-      'INSERT INTO tenants (name, domains) VALUES ($1, $2) RETURNING *',
-      [name.toLowerCase(), JSON.stringify(domains || [])]
+      `SELECT * FROM tenants WHERE domains @> to_jsonb($1::text)`,
+      [origin]
+    );
+    if (rows[0]) return rows[0];
+    // Also try matching just host:port from origin
+    try {
+      const url = new URL(origin);
+      const host = url.host;
+      const { rows: r2 } = await this.pool.query(
+        `SELECT * FROM tenants WHERE domains @> to_jsonb($1::text)`,
+        [host]
+      );
+      return r2[0];
+    } catch {
+      return null;
+    }
+  }
+
+  async create({ name, domains, userEmail }) {
+    await this.ensureTable();
+    const { rows } = await this.pool.query(
+      'INSERT INTO tenants (name, domains, created_by, updated_by) VALUES ($1, $2, $3, $3) RETURNING *',
+      [name.toLowerCase(), JSON.stringify(domains || []), userEmail]
     );
     const tenant = rows[0];
     tenant.tenant_id = TenantRepository.generateTenantId(name, tenant.id);
@@ -87,12 +110,12 @@ class TenantRepository extends BaseRepository {
     return updated.rows[0];
   }
 
-  async update(id, { name, domains, status }) {
+  async update(id, { name, domains, status, userEmail }) {
     await this.ensureTable();
     const { rows } = await this.pool.query(
       `UPDATE tenants SET name = COALESCE($1, name), domains = COALESCE($2, domains),
-       status = COALESCE($3, status), updated_at = NOW() WHERE id = $4 RETURNING *`,
-      [name ? name.toLowerCase() : null, domains ? JSON.stringify(domains) : null, status, id]
+       status = COALESCE($3, status), updated_by = COALESCE($5, updated_by), updated_at = NOW() WHERE id = $4 RETURNING *`,
+      [name ? name.toLowerCase() : null, domains ? JSON.stringify(domains) : null, status, id, userEmail]
     );
     return rows[0];
   }

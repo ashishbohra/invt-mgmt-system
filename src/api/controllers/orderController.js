@@ -9,13 +9,13 @@ module.exports = {
     return { data: await service.getById(req.params.id) };
   }),
   create: handle(async (req) => {
-    return { data: await service.create({ ...req.body, tenant_id: req.user.tenantId }) };
+    return { data: await service.create({ ...req.body, tenant_id: req.user.tenantId, userEmail: req.user.email }) };
   }),
   confirm: handle(async (req) => {
-    return { data: await service.confirm(req.params.id) };
+    return { data: await service.confirm(req.params.id, req.user.email) };
   }),
   cancel: handle(async (req) => {
-    return { data: await service.cancel(req.params.id) };
+    return { data: await service.cancel(req.params.id, req.user.email) };
   }),
   delete: handle(async (req) => {
     await service.delete(req.params.id);
