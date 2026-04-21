@@ -1,70 +1,149 @@
-# Getting Started with Create React App
+# User Portal
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React application for tenant users to manage products, inventory, and orders.
 
-## Available Scripts
+📖 **[← Back to Main README](../../README.md)**
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Quick Start
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+cd src/user-portal
+npm install
+set PORT=4002 && npm start    # http://localhost:4002
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+> The port must match a domain configured in the tenant's `domains` field in the database.
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Project Structure
 
-### `npm run build`
+```
+src/
+├── components/          # Reusable UI components
+│   ├── FormModal.js     # Create/Edit modal (used by all modules)
+│   ├── ViewModal.js     # Read-only detail modal (used by all modules)
+│   ├── Header.js        # Top header with tenant name, user avatar, logout
+│   ├── Sidebar.js       # Left navigation with module links
+│   └── ProtectedRoute.js # Auth guard — redirects to login if not authenticated
+├── context/
+│   └── AuthContext.js   # Auth state (token, user, login, logout)
+├── pages/
+│   ├── auth/
+│   │   └── LoginPage.js
+│   ├── product/
+│   │   ├── ProductList.js       # List with search, sort, filter, pagination
+│   │   ├── ProductModal.js      # Create/Edit product (uses FormModal)
+│   │   └── ProductViewModal.js  # View product detail (uses ViewModal)
+│   ├── inventory/
+│   │   ├── InventoryList.js     # List with filters, ⚠️ alerts
+│   │   ├── InventoryModal.js    # Edit stock (uses FormModal)
+│   │   └── InventoryViewModal.js # View detail with product link
+│   └── order/
+│       ├── OrderList.js         # List with status tiles, filters
+│       ├── OrderModal.js        # Create/Reorder with stock validation
+│       └── OrderViewModal.js    # View with approve/cancel (Manager)
+├── services/
+│   ├── httpClient.js      # Axios instance with auth interceptor
+│   ├── authService.js     # Login API
+│   ├── productService.js  # Product CRUD APIs
+│   ├── inventoryService.js # Inventory APIs
+│   └── orderService.js    # Order CRUD + confirm/cancel APIs
+├── styles/
+│   ├── app.css            # Global styles
+│   ├── auth.css           # Login page styles
+│   ├── header.css         # Header styles
+│   ├── sidebar.css        # Sidebar styles
+│   ├── modal.css          # Modal styles (overlay, header, body, footer)
+│   └── pages.css          # Page layout, tables, badges, pagination, tiles
+└── utils/
+    └── token.js           # JWT decode and expiry check
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Features by Module
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Products
+- List with search, sort (Name, SKU, Category, Status), pagination
+- Active/Inactive filter
+- Summary tiles (Total, Active, Inactive)
+- ⋮ Action menu: View, Edit, Delete
+- Category dropdown (10 predefined categories)
+- SKU read-only after creation
+- Soft delete (sets `is_active = false`, cascades to inventory)
 
-### `npm run eject`
+### Inventory
+- List with ⚠️ warning icons for low stock
+- Filters: Active/Inactive, Below Threshold
+- Summary tiles (Total, Active, Inactive, Below Reorder)
+- ⋮ Action menu: View, Edit (no delete — tied to product)
+- Quick stock update via Edit modal
+- View modal links to Product detail
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Orders
+- List with status badges and Active/Deleted column
+- Filters: Active/Inactive, Status (Created/Confirmed/Cancelled)
+- Summary tiles (Total, Created, Confirmed, Cancelled)
+- ⋮ Action menu: View, Reorder, Delete
+- Create order with live inventory check
+- Reorder from existing order (pre-filled product + quantity)
+- View modal shows full audit trail
+- **Manager only**: Approve and Cancel buttons
+- Cancel requires reason (stored in DB)
+- Deleted orders dimmed with "Deleted" badge
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Reusable Components
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### FormModal
+Generic create/edit modal. Accepts field configuration:
 
-## Learn More
+```jsx
+<FormModal
+  title="Add Product"
+  fields={[
+    { label: 'Name *', value: name, onChange: setName, required: true },
+    { label: 'Category *', type: 'select', options: [...], ... },
+  ]}
+  onSubmit={handleSubmit}
+  onClose={onClose}
+/>
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### ViewModal
+Generic read-only detail modal:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```jsx
+<ViewModal
+  title="Product Detail"
+  fields={[
+    { label: 'Name', value: product.name },
+    { label: 'Status', value: <span className="badge Active">Active</span> },
+  ]}
+  onClose={onClose}
+/>
+```
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Authentication Flow
 
-### Analyzing the Bundle Size
+1. User visits portal → `ProtectedRoute` redirects to `/login`
+2. User enters email + password → calls `POST /api/auth/login`
+3. API resolves tenant from browser origin domain
+4. On success → JWT token stored in `sessionStorage`
+5. All API calls include `Authorization: Bearer <token>`
+6. Token expires in 20 minutes → 401 → auto-redirect to login
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Environment Variables
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Variable | Default | Description |
+|----------|---------|-------------|
+| PORT | 3000 | Dev server port |
+| REACT_APP_API_URL | http://localhost:3000/api | API base URL |
