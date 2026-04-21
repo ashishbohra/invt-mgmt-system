@@ -29,6 +29,7 @@ src/
 | 🗄️ **[Database](docs/DATABASE.md)** | Tables, columns, relationships, auto-sync |
 | 📡 **[API Reference](docs/API-REFERENCE.md)** | All REST endpoints |
 | 💡 **[Assumptions](docs/ASSUMPTIONS.md)** | Design decisions vs scope document |
+| 🚢 **[Deployment](docs/DEPLOYMENT.md)** | Docker setup, multi-tenant config, go-live checklist |
 | 📖 **[API README](src/api/README.md)** | API-specific setup and patterns |
 | 🖥️ **[User Portal README](src/user-portal/README.md)** | User portal structure and features |
 
