@@ -24,6 +24,7 @@ const ctrl = require('../controllers/inventoryController');
  *         description: Paginated inventory list with belowThreshold count
  */
 router.get('/', ctrl.list);
+router.get('/product/:productId', ctrl.getByProductId);
 
 /**
  * @openapi

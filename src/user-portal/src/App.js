@@ -7,7 +7,6 @@ import LoginPage from './pages/auth/LoginPage';
 import ProductList from './pages/ProductList';
 import InventoryList from './pages/InventoryList';
 import OrderList from './pages/OrderList';
-import OrderDetail from './pages/OrderDetail';
 import './App.css';
 
 function AppLayout({ children }) {
@@ -33,7 +32,6 @@ function App() {
           <Route path="/products" element={<Protected><ProductList /></Protected>} />
           <Route path="/inventory" element={<Protected><InventoryList /></Protected>} />
           <Route path="/orders" element={<Protected><OrderList /></Protected>} />
-          <Route path="/orders/:id" element={<Protected><OrderDetail /></Protected>} />
           <Route path="*" element={<Navigate to="/products" />} />
         </Routes>
       </AuthProvider>

@@ -8,6 +8,9 @@ module.exports = {
       page: +req.query.page || 1, limit: +req.query.limit || 10,
     });
   }),
+  getByProductId: handle(async (req) => {
+    return { data: await service.getByProductId(req.params.productId) };
+  }),
   getById: handle(async (req) => {
     return { data: await service.getById(req.params.id) };
   }),

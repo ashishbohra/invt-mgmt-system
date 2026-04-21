@@ -32,6 +32,7 @@ export const productApi = {
 export const inventoryApi = {
   list: (params) => api.get('/inventory', { params }),
   getById: (id) => api.get(`/inventory/${id}`),
+  getByProductId: (productId) => api.get(`/inventory/product/${productId}`),
   updateStock: (id, current_inventory) => api.patch(`/inventory/${id}`, { current_inventory }),
 };
 
@@ -40,6 +41,6 @@ export const orderApi = {
   getById: (id) => api.get(`/orders/${id}`),
   create: (data) => api.post('/orders', data),
   confirm: (id) => api.patch(`/orders/${id}/confirm`),
-  cancel: (id) => api.patch(`/orders/${id}/cancel`),
+  cancel: (id, reason) => api.patch(`/orders/${id}/cancel`, { reason }),
   delete: (id) => api.delete(`/orders/${id}`),
 };

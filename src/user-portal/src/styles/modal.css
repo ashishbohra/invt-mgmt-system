@@ -126,3 +126,14 @@
 .link-btn:hover {
   text-decoration: underline;
 }
+
+.view-section-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #4f6ef7;
+  margin-top: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #eef0f3;
+}

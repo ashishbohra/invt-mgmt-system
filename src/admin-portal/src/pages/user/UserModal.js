@@ -31,7 +31,7 @@ export default function UserModal({ userId, onClose, onSaved }) {
     setForm((prev) => {
       const has = prev.portals.includes(portal);
       if (has) return { ...prev, portals: prev.portals.filter((p) => p !== portal) };
-      if (portal === 'AdminPortal') return { ...prev, portals: ['AdminPortal'], roles: prev.roles.filter((r) => r !== 'User'), tenant_name: '' };
+      if (portal === 'AdminPortal') return { ...prev, portals: ['AdminPortal'], roles: prev.roles.filter((r) => r === 'Admin'), tenant_name: '' };
       return { ...prev, portals: ['UserPortal'], roles: prev.roles.filter((r) => r !== 'Admin') };
     });
   };
@@ -41,6 +41,12 @@ export default function UserModal({ userId, onClose, onSaved }) {
       const list = prev.roles;
       return { ...prev, roles: list.includes(role) ? list.filter((r) => r !== role) : [...list, role] };
     });
+  };
+
+  const isRoleDisabled = (role) => {
+    if (role === 'Admin' && isUser) return true;
+    if ((role === 'User' || role === 'Manager') && isAdmin) return true;
+    return false;
   };
 
   const handleSubmit = async (e) => {
@@ -105,7 +111,7 @@ export default function UserModal({ userId, onClose, onSaved }) {
                 {enums.roles.map((r) => (
                   <label key={r} className="checkbox-label">
                     <input type="checkbox" checked={form.roles.includes(r)} onChange={() => toggleRole(r)}
-                      disabled={(r === 'Admin' && isUser) || (r === 'User' && isAdmin)} />
+                      disabled={isRoleDisabled(r)} />
                     {r}
                   </label>
                 ))}
